@@ -3,6 +3,13 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ProductModule } from './product/product.module';
+import { OrderProductModule } from './order_product/orderProduct.module';
+import { UserModle } from './user/user.module';
+import { ShipmentModule } from './shipment/shipment.module';
+import { PaymentModule } from './payment/payment.module';
+import { OrderModule } from './order/order.module';
+import { CategoryModule } from './category/category.module';
 
 @Module({
   imports: [
@@ -18,7 +25,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       database:'ecom_schema',
       autoLoadEntities: true,
       synchronize: true,
-    })
+    }),
+    ProductModule,
+    OrderProductModule,
+    UserModle,
+    ShipmentModule,
+    PaymentModule,
+    OrderModule,
+    CategoryModule
   ],
   controllers: [AppController],
   providers: [AppService],
