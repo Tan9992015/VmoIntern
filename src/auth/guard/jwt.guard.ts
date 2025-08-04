@@ -14,7 +14,7 @@ canActivate(context: ExecutionContext): boolean {
             
         try {
             const user =  this.jwtService.verify(token)
-            console.log(user)
+            // console.log(user)
             request.user = user
             return true
         } catch (error) {
