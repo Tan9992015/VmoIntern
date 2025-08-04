@@ -5,11 +5,12 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ProductModule } from './product/product.module';
 import { OrderProductModule } from './order_product/orderProduct.module';
-import { UserModle } from './user/user.module';
+import {  UserModule } from './user/user.module';
 import { ShipmentModule } from './shipment/shipment.module';
 import { PaymentModule } from './payment/payment.module';
 import { OrderModule } from './order/order.module';
 import { CategoryModule } from './category/category.module';
+import { CartModule } from './cart/cart.module';
 
 @Module({
   imports: [
@@ -18,21 +19,22 @@ import { CategoryModule } from './category/category.module';
     }),
     TypeOrmModule.forRoot({
       type:'mysql',
-      host:'localhost',
-      port:3306,
-      username:'root',
-      password:'123456',
-      database:'ecom_schema',
+      host: process.env.HOST,
+      port: Number(process.env.DB_PORT),
+      username: process.env.USER_NAME,
+      password: process.env.PASSWORD,
+      database: process.env.DATABASE,
       autoLoadEntities: true,
       synchronize: true,
     }),
     ProductModule,
     OrderProductModule,
-    UserModle,
+    UserModule,
     ShipmentModule,
     PaymentModule,
     OrderModule,
-    CategoryModule
+    CategoryModule,
+    CartModule
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,5 +1,7 @@
 import {  PaymentMethodEnum, PaymentStatusEnum } from "src/enum/payment.enum";
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { OrderEntity } from "src/order/order.entity";
+import { UserEntity } from "src/user/user.entity";
+import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import {v4 as uuidv4} from 'uuid'
 @Entity()
 export class PaymentEntity {
@@ -24,9 +26,14 @@ export class PaymentEntity {
     paymentDate:Date
 
     @CreateDateColumn({name:'created_at'})
-    creatdAt:Date
+    createdAt:Date
 
     @UpdateDateColumn({name:'updated_at'})
     updatedAt:Date
     
+    @OneToMany(()=>OrderEntity,order=>order.payment)
+    orders:OrderEntity[]
+
+    @ManyToOne(()=>UserEntity,user=>user.payment)
+    user:UserEntity
 }

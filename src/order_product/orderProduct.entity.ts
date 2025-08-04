@@ -1,7 +1,8 @@
-import { Injectable } from "@nestjs/common";
-import { Column, CreateDateColumn, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { OrderEntity } from "src/order/order.entity";
+import { ProductEntity } from "src/product/product.entity";
+import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
-@Injectable()
+@Entity()
 export class OrderProductEntity {
     @PrimaryGeneratedColumn('uuid')
     id:string
@@ -18,4 +19,9 @@ export class OrderProductEntity {
     @UpdateDateColumn({name:'updated_at'})
     updatedAt:Date
 
+    @ManyToOne(()=>ProductEntity,product=>product.orderProduct)
+    product:ProductEntity
+
+    @ManyToOne(()=>OrderEntity,order=>order.orderProduct)
+    order:OrderEntity
 }

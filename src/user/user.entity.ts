@@ -1,5 +1,8 @@
+import { CartEntity } from "src/cart/cart.entity";
 import { Role } from "src/enum/role.enum";
-import { BeforeInsert, Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { PaymentEntity } from "src/payment/payment.entity";
+import { ShipmentEntity } from "src/shipment/shipment.entity";
+import { BeforeInsert, Column, CreateDateColumn, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { v4 as uuidv4 } from "uuid";
 @Entity()
 export class UserEntity {
@@ -41,4 +44,14 @@ export class UserEntity {
 
     @DeleteDateColumn({name:'deleted_at'})
     deletedAt:Date
+
+    @OneToMany(()=>PaymentEntity,payment=>payment.user)
+    payment:PaymentEntity[]
+
+    @OneToMany(()=>ShipmentEntity,shipment=>shipment.user)
+    shipment:ShipmentEntity[]
+
+    @OneToMany(()=>CartEntity,cart=>cart.user)
+    cart:CartEntity[]
+
 }
