@@ -32,7 +32,7 @@ export class ShipmentEntity {
     updatedAt:Date
 
     @OneToMany(()=>OrderEntity,order=>order.shipment)
-    orders:OrderEntity[]
+    order:OrderEntity[]
 
     @ManyToOne(()=>UserEntity,user=>user.shipment)
     user:UserEntity

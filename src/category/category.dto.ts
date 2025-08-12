@@ -1,4 +1,16 @@
+import { PartialType } from "@nestjs/mapped-types"
+import { IsOptional } from "class-validator"
+import { ProductEntity } from "src/product/product.entity"
+
 export class CategoryDto {
-    id?:string
-    name?:string
+    @IsOptional()
+    id:string
+
+    @IsOptional()
+    name:string
+
+    @IsOptional()
+    product:ProductEntity[]
 }
+
+export class CategoryAllOptionnal extends PartialType(CategoryDto) {}

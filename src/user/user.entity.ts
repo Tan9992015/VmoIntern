@@ -31,6 +31,9 @@ export class UserEntity {
     @Column()
     phoneNumber:string
 
+    @Column()
+    avatar:string
+
     @BeforeInsert()
     emailToLowerCase() {
         this.email = this.email.toLowerCase()

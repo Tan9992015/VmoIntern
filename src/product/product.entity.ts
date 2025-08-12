@@ -20,6 +20,9 @@ export class ProductEntity {
     @Column()
     stock:Number
 
+    @Column()
+    image:string
+    
     @CreateDateColumn({name: 'created_at'})
     createdAt:Date
 
@@ -30,7 +33,10 @@ export class ProductEntity {
     @DeleteDateColumn({name:'deleted_at'})
     deletedAt:Date
 
-    @ManyToOne(()=>CategoryEntity,category=>category.product)
+    @ManyToOne(()=>CategoryEntity,category=>category.product, {
+        nullable:true,
+        onDelete:'SET NULL'
+    })
     category:CategoryEntity
 
     @OneToMany(()=>OrderProductEntity,orderProduct=>orderProduct.product)

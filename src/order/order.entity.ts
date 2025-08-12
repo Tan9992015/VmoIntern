@@ -12,7 +12,7 @@ export class OrderEntity {
     totalPrice:Number
 
     @CreateDateColumn({name:'created_at'})
-    createdAt:Date
+    creatdedAt:Date
 
     @UpdateDateColumn({name:'updated_at'})
     updatedAt:Date
@@ -20,9 +20,9 @@ export class OrderEntity {
     @OneToMany(()=>OrderProductEntity,orderProduct=>orderProduct.order)
     orderProduct:OrderProductEntity[]
 
-    @ManyToOne(()=>ShipmentEntity,shipment=>shipment.orders)
+    @ManyToOne(()=>ShipmentEntity,shipment=>shipment.order)
     shipment:ShipmentEntity
 
-    @ManyToOne(()=>PaymentEntity,payment=>payment.orders)
+    @ManyToOne(()=>PaymentEntity,payment=>payment.order)
     payment:PaymentEntity
 }

@@ -1,6 +1,7 @@
 import { PartialType } from "@nestjs/mapped-types";
-import { IsEmail, IsNotEmpty,IsOptional } from "class-validator";
+import { IsEmail, IsNotEmpty,IsOptional, IsEnum } from "class-validator";
 import { Role } from "src/enum/role.enum";
+import { Transform } from "class-transformer";
 
 export class UserDto {
     @IsOptional()
@@ -21,6 +22,8 @@ export class UserDto {
     @IsOptional()
     address:string
     
+    @IsOptional()
+    avatar:string
 }
 
 export class UserDtoExt extends PartialType(UserDto) {
@@ -29,4 +32,14 @@ export class UserDtoExt extends PartialType(UserDto) {
 
     @IsEmail()
     email: string 
+}
+
+export class UserAllOptional extends PartialType(UserDto) {
+
+}
+
+export class UpdateRoleDto {
+    @Transform(({ value }) => typeof value === 'string' ? value.trim().toLowerCase() : value)
+    @IsEnum(Role, { message: 'role must be one of: admin, user, seller' })
+    role: Role
 }

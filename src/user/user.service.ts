@@ -2,9 +2,11 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { UserEntity } from "./user.entity";
 import { Repository } from "typeorm";
-import { UserDto, UserDtoExt } from "./user.dto";
+import { UserAllOptional, UserDto, UserDtoExt } from "./user.dto";
 import { retry } from "rxjs";
 import { AuthService } from "src/auth/auth.service";
+import { error } from "console";
+import { Role } from "src/enum/role.enum";
 const bcrypt = require('bcrypt');
 @Injectable()
 export class UserService {
@@ -58,9 +60,9 @@ export class UserService {
     async login(user:UserDtoExt):Promise<any> {
         try {
             const foundUser = await this.userRepository.findOne({where:{email:user.email}})
-            if(!foundUser) return {mess: "user email is not correct"}
+            if(!foundUser) return {err:1, mess: "user email is not correct"}
         
-            if(!this.comparePassword(user.password,foundUser.password)) return {mess: "password is not correct"}
+            if(!this.comparePassword(user.password,foundUser.password)) return {err: 1, mess: "password is not correct"}
 
             const payload = {
                 "role":foundUser.role,
@@ -72,6 +74,7 @@ export class UserService {
             const token = await this.authService.genarateToken(payload)
 
             return {
+                err:0,
                 mess:"login successfully",
                 accessToken:token.accessToken,
                 refreshToken:token.refreshToken
@@ -84,5 +87,59 @@ export class UserService {
     //CRUD
     async findAll():Promise<UserEntity[]> {
         return await this.userRepository.find()
+    }
+    
+    async updateOneByEmal(email:string,user:UserAllOptional):Promise<any> {
+       try {
+        const foundUser = await this.userRepository.findOne({where:{email}})
+        if(!foundUser) return {
+            err:1,
+            mess:'user email not found'
+        }
+        const updatedUser = await this.userRepository.update(foundUser.id, user)
+        if(!updatedUser) return {
+            err:1,
+            mess:'updated fail'
+        }
+
+        return {
+            error:0,
+            mess:'updated success'
+        }
+       } catch (error) {
+            throw new Error(error)
+       }
+        
+    }
+
+     async updateOneById(id:string,user:UserAllOptional):Promise<any> {
+       try {
+        const foundUser = await this.userRepository.findOne({where:{id}})
+        if(!foundUser) return {
+            err:1,
+            mess:'user email not found'
+        }
+        const updatedUser = await this.userRepository.update(foundUser.id, user)
+        if(!updatedUser) return {
+            err:1,
+            mess:'updated fail'
+        }
+
+        return {
+            err:0,
+            mess:'updated success'
+        }
+       } catch (error) {
+            throw new Error(error)
+       }
+        
+    }
+
+    async softDelete(id:string):Promise<any> {
+        return await this.userRepository.softDelete(id)
+    }
+
+    async findOneByEmai(email:string):Promise<any> {
+        return await this.userRepository.findOne({where:{email}})
     }
 }

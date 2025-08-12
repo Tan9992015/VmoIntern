@@ -5,17 +5,20 @@ import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, Up
 @Entity()
 export class CartEntity {
     @PrimaryGeneratedColumn('uuid')
-    id: string
+    id: string;
 
-    @CreateDateColumn({ name: 'created_at' })
-    createdAt: Date
+    @Column()
+    quantity: number;
 
-    @UpdateDateColumn({ name: 'updated_at' })
-    updatedAt: Date
+    @CreateDateColumn({name:'created_at'})
+    createdAt: Date;
 
-    @ManyToOne(() => UserEntity, user => user.cart)
-    user: UserEntity
+    @UpdateDateColumn({name:'updated_at'})
+    updatedAt: Date;
 
-    @ManyToOne(() => ProductEntity, product => product.cart)
-    product: ProductEntity
+    @ManyToOne(()=>UserEntity,user=>user.cart)
+    user:UserEntity
+
+    @ManyToOne(()=>ProductEntity,product=>product.cart)
+    product:ProductEntity
 }

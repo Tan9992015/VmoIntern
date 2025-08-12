@@ -26,13 +26,13 @@ export class PaymentEntity {
     paymentDate:Date
 
     @CreateDateColumn({name:'created_at'})
-    createdAt:Date
+    creatdAt:Date
 
     @UpdateDateColumn({name:'updated_at'})
     updatedAt:Date
     
     @OneToMany(()=>OrderEntity,order=>order.payment)
-    orders:OrderEntity[]
+    order:OrderEntity[]
 
     @ManyToOne(()=>UserEntity,user=>user.payment)
     user:UserEntity
