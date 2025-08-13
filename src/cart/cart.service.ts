@@ -4,7 +4,7 @@ import { CartEntity } from "./cart.entity";
 import { Injectable } from "@nestjs/common";
 import { UserEntity } from "src/user/user.entity";
 import { UserAllOptional } from "src/user/user.dto";
-import { CartDto } from "./card.dto";
+import { CartDto, CartUpdateDto } from "./card.dto";
 import { UserService } from "src/user/user.service";
 import { ProductEntity } from "src/product/product.entity";
 
@@ -81,5 +81,106 @@ export class CartService {
         totalItems:foundCart.length,
         totalValue:sum
        }
+    }
+
+    async updateCart(userId:string,productId:string,cart:CartUpdateDto):Promise<any> {
+       try {
+         const foundCart = await this.cartRepository.findOne({
+            where:{
+                user:{id:userId},
+                product:{id:productId}
+            }
+         })
+        if(!foundCart) return {
+            err:1,
+            mess:'cart item not found'
+        }
+
+        const oldQuantity = foundCart.quantity
+        let quantity:number
+
+        switch(cart.operation) {
+            case 'add':
+                quantity = Number(foundCart.quantity) + Number(cart.quantity)
+            break
+            case 'subtract':
+                quantity = Number(foundCart.quantity) - Number(cart.quantity)
+            break
+            case 'set':
+                default: quantity = Number(cart.quantity);
+            break
+        }
+
+        if(quantity <=0) return {
+            err:1,
+            mess:'quantity must greater than 0'
+        }
+
+        foundCart.quantity = quantity
+        await this.cartRepository.save(foundCart)
+
+        return {
+            err:0,
+            mess:'update product quantity in cart success',
+            newCart:foundCart,
+            operation:cart.operation,
+            oldQuantity:oldQuantity,
+            newQuantity:foundCart.quantity
+        }
+       } catch (error) {
+            throw new Error(error)
+       }    
+    }
+
+    async deleteProductFromCart(productId:string,userId:string):Promise<any> {
+        try {
+            const foundCart = await this.cartRepository.findOne({where:{ 
+                                                                        user: { id:userId },
+                                                                        product: {id:productId} 
+                                                                    }})
+            if(!foundCart) return {
+                err:1,
+                mess:"cart not found"
+            }
+            const deleteCart = await this.cartRepository.softDelete(foundCart.id)
+            if(!deleteCart) return {
+                err:1,
+                mess:'delete product from cart fail'
+            }
+            return {
+                err:0,
+                mess:'delete product from cart success',
+                cart: deleteCart
+            }
+        } catch (error) {
+            throw new Error(error)
+        }
+    }
+
+    async deleteUserCart(userId:string):Promise<any> {
+     
+        try {
+               const foundCart = await this.cartRepository.find({
+            where: {user: {id : userId}},
+            relations:['product']
+        })
+
+        const removeItems = foundCart.map((item)=> ({
+            productId:item.product.id,
+            productName:item.product.name,
+            quantity:item.quantity
+        }))
+
+        const cartsId = foundCart.map(cart=>cart.id)
+        await this.cartRepository.softDelete(cartsId) // soft delte chỉ nhận id hoặc array id
+
+        return {
+            err:0,
+            mess:'user delete all cart success',
+            removeItems: removeItems
+        }
+        } catch (error) {
+         throw new Error(error)   
+        }
     }
 }

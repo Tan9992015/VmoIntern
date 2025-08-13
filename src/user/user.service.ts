@@ -65,6 +65,7 @@ export class UserService {
             if(!this.comparePassword(user.password,foundUser.password)) return {err: 1, mess: "password is not correct"}
 
             const payload = {
+                "id":foundUser.id,
                 "role":foundUser.role,
                 "name":foundUser.name,
                 "email":foundUser.email,
