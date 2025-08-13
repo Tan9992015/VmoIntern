@@ -30,9 +30,10 @@ export class CartService {
             err:1,
             mess:"product not found"
         }
+        newCart.user = await foundUser
         newCart.product = cartProduct
         newCart.quantity = cart.quantity ?? 1
-        const createCart = await this.cartRepository.create(newCart)
+        const createCart = await this.cartRepository.save(newCart)
         if(!createCart) return {
             err:1,
             mess:'create cart fail '
@@ -47,4 +48,38 @@ export class CartService {
        }
     }
 
+
+    async getCartByUserId(id:string):Promise<any> {
+        const foundCart = await this.cartRepository.find({ where:{user: {id:id}}, 
+                                                           relations:['product','user'],
+                                                           select:{
+                                                            product:{
+                                                                name:true,
+                                                                price:true
+                                                            },
+                                                            user: {
+                                                                name:true,
+                                                                email:true,
+                                                                address:true,
+                                                                phoneNumber:true
+                                                            }
+                                                           }
+                                                        })
+        if(!foundCart) return {
+            err:1,
+            mess:"cart not found",
+            cart:[],
+            totalItems:0,
+            totalValue:0
+        }
+       let sum = 0
+       foundCart.forEach((cart,index)=> {sum += Number(cart.product.price) * Number(cart.quantity)})
+       return {
+        err:0,
+        mess:"found cart success",
+        cart:foundCart,
+        totalItems:foundCart.length,
+        totalValue:sum
+       }
+    }
 }

@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Req, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, Req, UseGuards } from "@nestjs/common";
 import { CartService } from "./cart.service";
 import { CartDto } from "./card.dto";
 import { JwtGuard } from "src/auth/guard/jwt.guard";
@@ -13,5 +13,10 @@ export class CartController {
     async createCart(@Body() cart:CartDto, @Req() req):Promise<any> {
         const user = req.user
         return await this.cartService.createCart(user,cart)
+    }
+
+    @Get(':id')
+    async getCartByUserId(@Param('id') id:string):Promise<any> {
+        return await this.cartService.getCartByUserId(id)
     }
 }
