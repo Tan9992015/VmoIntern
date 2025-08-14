@@ -1,8 +1,9 @@
 import { OrderProductEntity } from 'src/order_product/orderProduct.entity';
 import { PaymentEntity } from 'src/payment/payment.entity';
 import { ShipmentEntity } from 'src/shipment/shipment.entity';
-import { Column, CreateDateColumn, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import {v4 as uuidv4} from 'uuid'
+import { UserEntity } from 'src/user/user.entity';
 @Entity()
 export class OrderEntity {
     @PrimaryGeneratedColumn('uuid')
@@ -17,6 +18,9 @@ export class OrderEntity {
     @UpdateDateColumn({name:'updated_at'})
     updatedAt:Date
 
+    @DeleteDateColumn({name:'deleted_at'})
+    deleteAt:Date
+
     @OneToMany(()=>OrderProductEntity,orderProduct=>orderProduct.order)
     orderProduct:OrderProductEntity[]
 
@@ -25,4 +29,7 @@ export class OrderEntity {
 
     @ManyToOne(()=>PaymentEntity,payment=>payment.order)
     payment:PaymentEntity
+
+    @ManyToOne(()=>UserEntity)
+    user: UserEntity
 }

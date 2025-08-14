@@ -8,7 +8,7 @@ export class OrderProductEntity {
     id:string
 
     @Column()
-    quantity:string
+    quantity:Number
 
     @Column()
     price:Number

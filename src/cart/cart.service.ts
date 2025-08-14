@@ -1,7 +1,7 @@
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { CartEntity } from "./cart.entity";
-import { Injectable } from "@nestjs/common";
+import { Injectable, forwardRef, Inject } from "@nestjs/common";
 import { UserEntity } from "src/user/user.entity";
 import { UserAllOptional } from "src/user/user.dto";
 import { CartDto, CartUpdateDto } from "./card.dto";
@@ -12,6 +12,7 @@ import { ProductEntity } from "src/product/product.entity";
 export class CartService {
     constructor(@InjectRepository(CartEntity)
             private readonly cartRepository:Repository<CartEntity>,
+            @Inject(forwardRef(() => UserService))
             private readonly userService:UserService,
             @InjectRepository(ProductEntity)
             private readonly productRepository:Repository<ProductEntity>
@@ -54,10 +55,12 @@ export class CartService {
                                                            relations:['product','user'],
                                                            select:{
                                                             product:{
+                                                                id:true,
                                                                 name:true,
                                                                 price:true
                                                             },
                                                             user: {
+                                                                id:true,
                                                                 name:true,
                                                                 email:true,
                                                                 address:true,

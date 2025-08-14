@@ -34,6 +34,7 @@ export class UserService {
             newUser.name = user.name ?? ''
             newUser.address = user.address ?? ''
             newUser.password = await this.hashPassword(user.password) ?? ''
+            newUser.avatar = ''
             
             // save user to db
             const savedUser = await this.userRepository.save(newUser)

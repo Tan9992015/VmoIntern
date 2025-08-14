@@ -1,7 +1,40 @@
-import { Controller } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Post, Req, UseGuards } from "@nestjs/common";
 import { OrderService } from "./order.service";
+import { JwtGuard } from "src/auth/guard/jwt.guard";
+import { OrderDirectDto } from "./order.dto";
+import { RoleGuard } from "src/auth/guard/role.guard";
 
-@Controller()
+@Controller('order')
 export class OrderController {
     constructor(private readonly orderService:OrderService) {}
+    
+    @UseGuards(JwtGuard)
+    @Post('/create-order-cart')
+    async createOrderFromCart(@Req() req):Promise<any> {
+        return await this.orderService.createOrderFromCart(req.user.id)
+    }
+
+    @UseGuards(JwtGuard)
+    @Post('/create-order-direct')
+    async createOrderDirect(@Body() orderDto:OrderDirectDto,@Req() req):Promise<any> {
+        return await this.orderService.createOrderDirect(req.user.id,orderDto)
+    }
+
+    @UseGuards(JwtGuard,RoleGuard)
+    @Get('all')
+    async getAllOrder():Promise<any>{
+        return await this.orderService.getAll()
+    }
+
+    @UseGuards(JwtGuard)
+    @Get('')
+    async getOrderByUserId(@Req() req):Promise<any> {
+        return await this.orderService.getOrderByUserId(req.user.id)
+    }
+
+    @UseGuards(JwtGuard)
+    @Delete(':orderId')
+    async deleteOrder(@Req() req,@Param('orderId') orderId:string):Promise<any> {
+        return await this.orderService.deleteOrder(req.user.id,orderId)
+    }
 }

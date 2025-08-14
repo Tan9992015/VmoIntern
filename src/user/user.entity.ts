@@ -1,5 +1,6 @@
 import { CartEntity } from "src/cart/cart.entity";
 import { Role } from "src/enum/role.enum";
+import { OrderEntity } from "src/order/order.entity";
 import { PaymentEntity } from "src/payment/payment.entity";
 import { ShipmentEntity } from "src/shipment/shipment.entity";
 import { BeforeInsert, Column, CreateDateColumn, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
@@ -56,5 +57,8 @@ export class UserEntity {
 
     @OneToMany(()=>CartEntity,cart=>cart.user)
     cart:CartEntity[]
+
+    @OneToMany(()=>OrderEntity,order=>order.user)
+    order:OrderEntity[]
 
 }
