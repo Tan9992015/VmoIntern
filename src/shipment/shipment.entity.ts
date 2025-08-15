@@ -1,7 +1,7 @@
 import { ShipmmentMethod, ShipmmentStatus } from 'src/enum/shipment.enum';
 import { OrderEntity } from 'src/order/order.entity';
 import { UserEntity } from 'src/user/user.entity';
-import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import {v4 as uuidv4} from 'uuid'
 @Entity()
 export class ShipmentEntity {
@@ -30,6 +30,9 @@ export class ShipmentEntity {
 
     @UpdateDateColumn({name:'updated_at'})
     updatedAt:Date
+
+    @DeleteDateColumn({name:'deleted_at'})
+    deleteAt:Date
 
     @OneToMany(()=>OrderEntity,order=>order.shipment)
     order:OrderEntity[]

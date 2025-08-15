@@ -1,17 +1,17 @@
-import { Body, Controller, Delete, Get, Param, Post, Req, UseGuards } from "@nestjs/common";
-import { OrderService } from "./order.service";
-import { JwtGuard } from "src/auth/guard/jwt.guard";
-import { OrderDirectDto } from "./order.dto";
-import { RoleGuard } from "src/auth/guard/role.guard";
+import { Body, Controller, Delete, Get, Param, Post, Req, UseGuards } from "@nestjs/common"
+import { OrderService } from "./order.service"
+import { JwtGuard } from "src/auth/guard/jwt.guard"
+import { OrderDirectDto } from "./order.dto"
+import { RoleGuard } from "src/auth/guard/role.guard"
 
 @Controller('order')
 export class OrderController {
     constructor(private readonly orderService:OrderService) {}
     
     @UseGuards(JwtGuard)
-    @Post('/create-order-cart')
-    async createOrderFromCart(@Req() req):Promise<any> {
-        return await this.orderService.createOrderFromCart(req.user.id)
+    @Post('/create-order-cart/:shipmentId')
+    async createOrderFromCart(@Req() req,@Param('shipmentId') shipmentId:string):Promise<any> {
+        return await this.orderService.createOrderFromCart(req.user.id,shipmentId)
     }
 
     @UseGuards(JwtGuard)

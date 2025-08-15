@@ -7,6 +7,7 @@ import { ShipmentEntity } from "src/shipment/shipment.entity";
 import { OrderProductEntity } from "src/order_product/orderProduct.entity";
 import {  OrderDirectDto } from "./order.dto";
 import { ProductService } from "src/product/product.service";
+import { ShipmentService } from "src/shipment/shimpent.service";
 
 export class OrderService {
     constructor(@InjectRepository(OrderEntity)
@@ -15,10 +16,11 @@ export class OrderService {
                 private readonly orderProductRepository:Repository<OrderProductEntity>,
                 private readonly cartService:CartService,
                 private readonly userService:UserService,
-                private readonly productService:ProductService
+                private readonly productService:ProductService,
+                private readonly shipmentService:ShipmentService
 ) { }
 
-    async createOrderFromCart(userId:string):Promise<any> {
+    async createOrderFromCart(userId:string,shipmentId:string):Promise<any> {
         try {
             const foundCartByUserId = await this.cartService.getCartByUserId(userId)
             console.log(foundCartByUserId)
@@ -35,6 +37,7 @@ export class OrderService {
             const newOrder = new OrderEntity()
             newOrder.user = await this.userService.findOneById(userId)
             newOrder.totalPrice = sum
+            newOrder.shipment = await this.shipmentService.getShipmentById(shipmentId)
 
             // create order products
             const orderProducts: OrderProductEntity[] = []
@@ -69,6 +72,12 @@ export class OrderService {
         const newOrder = new OrderEntity()
         newOrder.user = user
 
+        const foundShipment = await this.shipmentService.getShipmentById(orderDto.shipmentId)
+        if(!foundShipment) return {
+            err:'1',
+            mess:'shipment not found'
+        }
+        newOrder.shipment = await foundShipment
         const orderProducts: OrderProductEntity[] = []
         let total = 0
         for (const item of orderDto.items) {
@@ -100,7 +109,7 @@ export class OrderService {
         return await this.orderRepository.findOne({where:{user:{id:userId}}})
     }
 
-    async deleteOrder(userId,orderId:string):Promise<any> {
+    async deleteOrder(userId:string,orderId:string):Promise<any> {
         const foudOrders= await this.orderRepository.find({where:{ user:{ id:userId } } })
         let check:boolean = false
         for(const order of foudOrders){

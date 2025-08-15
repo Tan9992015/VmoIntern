@@ -19,7 +19,7 @@ export class OrderDirectDto {
 
     @IsString()
     @IsOptional()
-    shipmentId?: string
+    shipmentId: string
 
     @IsString()
     @IsOptional()
