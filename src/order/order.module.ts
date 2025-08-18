@@ -10,12 +10,13 @@ import { ProductModule } from "src/product/product.module";
 import { OrderProductModule } from "src/order_product/orderProduct.module";
 import { AuthModule } from "src/auth/auth.module";
 import { ShipmentModule } from "src/shipment/shipment.module";
+import { PaymentModule } from "src/payment/payment.module";
 
 @Module({
-    imports:[TypeOrmModule.forFeature([OrderEntity,OrderProductEntity]),
+    imports:[TypeOrmModule.forFeature([OrderEntity,OrderProductEntity],),
     CartModule,forwardRef(()=>UserModule),
     ProductModule,OrderProductModule,
-    AuthModule,ShipmentModule],
+    AuthModule,ShipmentModule,PaymentModule],
     controllers:[OrderController],
     providers:[OrderService],
     exports:[OrderService]

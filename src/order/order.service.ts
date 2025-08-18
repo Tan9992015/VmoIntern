@@ -8,6 +8,7 @@ import { OrderProductEntity } from "src/order_product/orderProduct.entity";
 import {  OrderDirectDto } from "./order.dto";
 import { ProductService } from "src/product/product.service";
 import { ShipmentService } from "src/shipment/shimpent.service";
+import { PaymentService } from "src/payment/payment.service";
 
 export class OrderService {
     constructor(@InjectRepository(OrderEntity)
@@ -17,10 +18,11 @@ export class OrderService {
                 private readonly cartService:CartService,
                 private readonly userService:UserService,
                 private readonly productService:ProductService,
-                private readonly shipmentService:ShipmentService
+                private readonly shipmentService:ShipmentService,
+                private readonly paymentService:PaymentService
 ) { }
 
-    async createOrderFromCart(userId:string,shipmentId:string):Promise<any> {
+    async createOrderFromCart(userId:string,shipmentId:string,paymentId:string):Promise<any> {
         try {
             const foundCartByUserId = await this.cartService.getCartByUserId(userId)
             console.log(foundCartByUserId)
@@ -38,7 +40,7 @@ export class OrderService {
             newOrder.user = await this.userService.findOneById(userId)
             newOrder.totalPrice = sum
             newOrder.shipment = await this.shipmentService.getShipmentById(shipmentId)
-
+            newOrder.payment = await this.paymentService.findOnePaymentById(paymentId)
             // create order products
             const orderProducts: OrderProductEntity[] = []
             for (const cartItem of foundCartByUserId.cart) {
@@ -74,8 +76,13 @@ export class OrderService {
 
         const foundShipment = await this.shipmentService.getShipmentById(orderDto.shipmentId)
         if(!foundShipment) return {
-            err:'1',
+            err:1,
             mess:'shipment not found'
+        }
+        const foundPayment = await this.paymentService.findOnePaymentById(orderDto.paymentId)
+        if(!foundPayment) return {
+            err:1,
+            mess:'payment not found'
         }
         newOrder.shipment = await foundShipment
         const orderProducts: OrderProductEntity[] = []
@@ -83,9 +90,9 @@ export class OrderService {
         for (const item of orderDto.items) {
             const op = new OrderProductEntity()
             const foundProduct = await this.productService.findOneById(item.productId)
-            console.log('1',foundProduct)
-            console.log('2',item.quantity)
-            console.log('3',foundProduct.product.price)
+            // console.log('1',foundProduct)
+            // console.log('2',item.quantity)
+            // console.log('3',foundProduct.product.price)
             op.product = foundProduct.product
             op.quantity = item.quantity
             op.price =  foundProduct.product.price 

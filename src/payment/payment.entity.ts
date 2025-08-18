@@ -25,6 +25,9 @@ export class PaymentEntity {
     @Column()
     paymentDate:Date
 
+    @Column()
+    total:Number
+
     @CreateDateColumn({name:'created_at'})
     creatdAt:Date
 

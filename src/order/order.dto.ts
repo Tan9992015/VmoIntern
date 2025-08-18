@@ -18,12 +18,10 @@ export class OrderDirectDto {
     items: OrderItemDto[]
 
     @IsString()
-    @IsOptional()
     shipmentId: string
 
     @IsString()
-    @IsOptional()
-    paymentId?: string
+    paymentId: string
 
     @IsString()
     @IsOptional()

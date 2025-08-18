@@ -9,9 +9,11 @@ export class OrderController {
     constructor(private readonly orderService:OrderService) {}
     
     @UseGuards(JwtGuard)
-    @Post('/create-order-cart/:shipmentId')
-    async createOrderFromCart(@Req() req,@Param('shipmentId') shipmentId:string):Promise<any> {
-        return await this.orderService.createOrderFromCart(req.user.id,shipmentId)
+    @Post('/create-order-cart/:shipmentId/:paymentId')
+    async createOrderFromCart(@Req() req,
+                              @Param('shipmentId') shipmentId:string,
+                              @Param('paymentId') paymentId:string):Promise<any> {
+        return await this.orderService.createOrderFromCart(req.user.id,shipmentId,paymentId)
     }
 
     @UseGuards(JwtGuard)

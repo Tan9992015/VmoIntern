@@ -19,7 +19,5 @@ export class ShipmentDto {
     @IsOptional()
     userId:string
 
-    @IsOptional()
-    orderId:string
 }
 
