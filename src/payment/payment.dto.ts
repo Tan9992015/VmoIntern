@@ -1,23 +1,31 @@
-import { IsDate, IsNumber, IsOptional } from "class-validator";
+import { PartialType } from "@nestjs/mapped-types";
+import { ApiProperty } from "@nestjs/swagger";
+import { IsDate, IsNotEmpty, IsNumber, IsOptional } from "class-validator";
 import { PaymentMethodEnum, PaymentStatusEnum } from "src/enum/payment.enum";
 
 export class PaymentDto {
-
-    @IsOptional()
+    @ApiProperty()
+    @IsNotEmpty()
     paymentMethod:PaymentMethodEnum
 
-    @IsOptional()
+    @ApiProperty()
+    @IsNotEmpty()
     paymentStatus:PaymentStatusEnum
     
-    @IsOptional()
+    @ApiProperty()
+    @IsNotEmpty()
     @IsNumber()
     total:number
 
-    @IsOptional()
+    @ApiProperty()
+    @IsNotEmpty()
     @IsDate()
     paymentDate:Date
 
-    @IsOptional()
+    @ApiProperty()
+    @IsNotEmpty()
     userId:string
 
 }
+
+export class PaymentAllOptional extends PartialType(PaymentDto) {}

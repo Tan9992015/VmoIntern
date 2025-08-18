@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { ShipmentEntity } from "./shipment.entity";
 import { Repository } from "typeorm";
-import { ShipmentDto } from "./shipment.dto";
+import { ShipmentAllOptional, ShipmentDto } from "./shipment.dto";
 import { UserService } from "src/user/user.service";
 
 @Injectable()
@@ -47,7 +47,7 @@ async getShipmentByUserId(userId:string):Promise<any> {
     return await this.shipmentRepository.find({where:{user:{id:userId}}})
 }
 
-async updateShipment(userId:string,shipmentId:string,shimpent:ShipmentDto):Promise<any> {
+async updateShipment(userId:string,shipmentId:string,shimpent:ShipmentAllOptional):Promise<any> {
     const foudShipments= await this.shipmentRepository.find({where:{ user:{ id:userId } } })
     let check:boolean= false
      for(const shimpent of foudShipments){

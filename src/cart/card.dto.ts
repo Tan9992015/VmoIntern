@@ -1,11 +1,16 @@
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { IsIn, IsNumber, IsOptional, IsString, Min } from "class-validator";
+import { IsIn, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from "class-validator";
 
 export class CartDto {
-    @IsOptional()
+
+    @ApiProperty()
+    @IsNotEmpty()
+    @IsString()
     productId:string
 
-
+    @ApiProperty()
+    @IsNotEmpty()
     @Type(()=>Number)
     @IsNumber()
     @Min(1)
@@ -13,11 +18,15 @@ export class CartDto {
 }
 
 export class CartUpdateDto {
+
+    @ApiPropertyOptional()
+    @IsOptional()
     @Type(()=>Number)
     @IsNumber()
     @Min(1)
     quantity:Number
 
+    @ApiPropertyOptional()
     @IsOptional()
     @IsIn(['set', 'add', 'subtract'])
     operation:'set' | 'add' | 'subtract' = 'set' // mặc định sẻ

@@ -1,8 +1,11 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Req, UseGuards } from "@nestjs/common";
-import { PaymentService } from "./payment.service";
-import { PaymentDto } from "./payment.dto";
-import { JwtGuard } from "src/auth/guard/jwt.guard";
+import { Body, Controller, Delete, Get, Param, Post, Put, Req, UseGuards } from "@nestjs/common"
+import { PaymentService } from "./payment.service"
+import { PaymentAllOptional, PaymentDto } from "./payment.dto"
+import { JwtGuard } from "src/auth/guard/jwt.guard"
+import { ApiTags } from "@nestjs/swagger"
 
+
+@ApiTags('payment')
 @Controller('payment')
 export class PaymentController {
     constructor(private readonly paymentService:PaymentService) {}
@@ -27,7 +30,7 @@ export class PaymentController {
 
     @UseGuards(JwtGuard)
     @Put('update/:paymentId')
-    async updateUserPayment(@Req() req,@Param('paymentId') paymentId:string, @Body() payment:PaymentDto):Promise<any> {
+    async updateUserPayment(@Req() req,@Param('paymentId') paymentId:string, @Body() payment:PaymentAllOptional):Promise<any> {
         return await this.paymentService.updatePaymentByUserId(req.user.id,paymentId,payment)
     }
 

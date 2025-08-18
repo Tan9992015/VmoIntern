@@ -1,17 +1,19 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, Req, Res, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
-import { ProductService } from "./product.service";
-import { ProductAllOptional, ProductDto } from "./product.dto";
-import { ProductEntity } from "./product.entity";
-import { Pagination } from "nestjs-typeorm-paginate";
-import { JwtGuard } from "src/auth/guard/jwt.guard";
-import { Role } from "src/enum/role.enum";
-import { RoleGuard } from "src/auth/guard/role.guard";
-import { FileInterceptor } from "@nestjs/platform-express";
-import { diskStorage } from "multer";
+import { Body, Controller, Delete, Get, Param, Post, Put, Query, Req, Res, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common"
+import { ProductService } from "./product.service"
+import { ProductAllOptional, ProductDto } from "./product.dto"
+import { ProductEntity } from "./product.entity"
+import { Pagination } from "nestjs-typeorm-paginate"
+import { JwtGuard } from "src/auth/guard/jwt.guard"
+import { RoleGuard } from "src/auth/guard/role.guard"
+import { FileInterceptor } from "@nestjs/platform-express"
+import { diskStorage } from "multer"
 import {v4 as uuidv4} from 'uuid'
-import * as path from "path";
-import { join } from "path";
+import * as path from "path"
+import { join } from "path"
+import { ApiTags } from "@nestjs/swagger"
 
+
+@ApiTags('product')
 @Controller('product')
 export class ProductController {
     constructor(private readonly productService:ProductService) { }

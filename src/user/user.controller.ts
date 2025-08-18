@@ -1,18 +1,21 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Req, Res, SetMetadata, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
-import { UserService } from "./user.service";
-import { UserAllOptional, UserDto, UserDtoExt } from "./user.dto";
-import { JwtGuard } from "src/auth/guard/jwt.guard";
-import { RoleGuard } from "src/auth/guard/role.guard";
-import { UserEntity } from "./user.entity";
-import { LoggingInterceptor } from "src/logging/logging.interceptor";
-import { LoggingDecorator } from "src/logging/logging.decorator";
-import { FileInterceptor } from "@nestjs/platform-express";
-import { diskStorage } from "multer";
+import { Body, Controller, Delete, Get, Param, Post, Put, Req, Res, SetMetadata, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common"
+import { UserService } from "./user.service"
+import { UserAllOptional, UserDto, UserDtoExt } from "./user.dto"
+import { JwtGuard } from "src/auth/guard/jwt.guard"
+import { RoleGuard } from "src/auth/guard/role.guard"
+import { UserEntity } from "./user.entity"
+import { LoggingInterceptor } from "src/logging/logging.interceptor"
+import { LoggingDecorator } from "src/logging/logging.decorator"
+import { FileInterceptor } from "@nestjs/platform-express"
+import { diskStorage } from "multer"
 import {v4 as uuidv4} from 'uuid'
-import * as path from "path";
-import { Role } from "src/enum/role.enum";
-import { join } from "path";
+import * as path from "path"
+import { Role } from "src/enum/role.enum"
+import { join } from "path"
+import { ApiTags } from "@nestjs/swagger"
 
+
+@ApiTags('user')
 @Controller('user')
 export class UserController {
     constructor(private readonly userService:UserService) { }

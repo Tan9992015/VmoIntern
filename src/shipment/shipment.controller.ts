@@ -1,8 +1,11 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Req, UseGuards } from "@nestjs/common";
-import { ShipmentService } from "./shimpent.service";
-import { ShipmentDto } from "./shipment.dto";
-import { JwtGuard } from "src/auth/guard/jwt.guard";
+import { Body, Controller, Delete, Get, Param, Post, Put, Req, UseGuards } from "@nestjs/common"
+import { ShipmentService } from "./shimpent.service"
+import { ShipmentAllOptional, ShipmentDto } from "./shipment.dto"
+import { JwtGuard } from "src/auth/guard/jwt.guard"
+import { ApiTags } from "@nestjs/swagger";
 
+
+@ApiTags('shipment')
 @Controller('shipment')
 export class ShipmentController {
     constructor(private readonly shipmentService:ShipmentService) {}
@@ -30,7 +33,7 @@ export class ShipmentController {
 
     @UseGuards(JwtGuard)
     @Put('update/:shipmentId')
-    async updateShipment(@Req() req,@Param('shipmentId') shipmentId:string,@Body() shipment:ShipmentDto):Promise<any> {
+    async updateShipment(@Req() req,@Param('shipmentId') shipmentId:string,@Body() shipment:ShipmentAllOptional):Promise<any> {
         return await this.shipmentService.updateShipment(req.user.id,shipmentId,shipment)
     }
     

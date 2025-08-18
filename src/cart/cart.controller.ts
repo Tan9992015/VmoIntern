@@ -2,7 +2,10 @@ import { Body, Controller, Delete, Get, Param, Post, Put, Req, UseGuards } from 
 import { CartService } from "./cart.service";
 import { CartDto, CartUpdateDto } from "./card.dto";
 import { JwtGuard } from "src/auth/guard/jwt.guard";
+import { ApiTags } from "@nestjs/swagger";
 
+
+@ApiTags('cart')
 @Controller('cart')
 export class CartController {
     constructor(private readonly cartService:CartService) {}

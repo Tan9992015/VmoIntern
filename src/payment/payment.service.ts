@@ -4,7 +4,7 @@ import { PaymentEntity } from "./payment.entity";
 import { Repository } from "typeorm";
 import { ShipmentDto } from "src/shipment/shipment.dto";
 import { ShipmentEntity } from "src/shipment/shipment.entity";
-import { PaymentDto } from "./payment.dto";
+import { PaymentAllOptional, PaymentDto } from "./payment.dto";
 import { UserService } from "src/user/user.service";
 import { ppid } from "process";
 
@@ -53,7 +53,7 @@ export class PaymentService {
         return await this.paymentRepository.find({where:{user:{id:userId}}})
     }
 
-    async updatePaymentByUserId(userId:string,paymentId:string,payment:PaymentDto):Promise<any> {
+    async updatePaymentByUserId(userId:string,paymentId:string,payment:PaymentAllOptional):Promise<any> {
         try {
                 const foundUser = await this.userService.findOneById(userId)
         if(!foundUser) return {

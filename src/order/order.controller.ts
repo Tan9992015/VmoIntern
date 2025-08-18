@@ -3,7 +3,10 @@ import { OrderService } from "./order.service"
 import { JwtGuard } from "src/auth/guard/jwt.guard"
 import { OrderDirectDto } from "./order.dto"
 import { RoleGuard } from "src/auth/guard/role.guard"
+import { ApiTags } from "@nestjs/swagger"
 
+
+@ApiTags('order')
 @Controller('order')
 export class OrderController {
     constructor(private readonly orderService:OrderService) {}

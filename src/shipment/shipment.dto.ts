@@ -1,23 +1,33 @@
-import { IsEnum, IsOptional } from "class-validator"
+import { PartialType } from "@nestjs/mapped-types"
+import { IsEnum, IsNotEmpty, IsOptional, IsString } from "class-validator"
 import { ShipmmentMethod, ShipmmentStatus } from "src/enum/shipment.enum"
-
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 export class ShipmentDto {
+
+    @ApiPropertyOptional()
     @IsOptional()
     id:string
 
-    @IsOptional()
+    @ApiProperty()
+    @IsNotEmpty()
+    @IsString()
     address:string
 
-    @IsOptional()
+    @ApiProperty()
+    @IsNotEmpty()
     @IsEnum(ShipmmentMethod)
     shipmentMethod:ShipmmentMethod
 
-    @IsOptional()
+    @ApiProperty()
+    @IsNotEmpty()
     @IsEnum(ShipmmentStatus)
     shipmentStatus:ShipmmentStatus
 
-    @IsOptional()
+    @ApiProperty()
+    @IsNotEmpty()
+    @IsString()
     userId:string
 
 }
 
+export class ShipmentAllOptional extends PartialType(ShipmentDto) {}
