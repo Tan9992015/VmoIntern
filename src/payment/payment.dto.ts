@@ -1,5 +1,5 @@
 import { PartialType } from "@nestjs/mapped-types";
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { IsDate, IsNotEmpty, IsNumber, IsOptional } from "class-validator";
 import { PaymentMethodEnum, PaymentStatusEnum } from "src/enum/payment.enum";
 
@@ -17,14 +17,10 @@ export class PaymentDto {
     @IsNumber()
     total:number
 
-    @ApiProperty()
-    @IsNotEmpty()
+    @ApiPropertyOptional()
+    @IsOptional()
     @IsDate()
     paymentDate:Date
-
-    @ApiProperty()
-    @IsNotEmpty()
-    userId:string
 
 }
 

@@ -5,7 +5,7 @@ import { UserController } from "./user.controller";
 import { UserService } from "./user.service";
 import { AuthModule } from "src/auth/auth.module";
 import { LoggingInterceptor } from "src/logging/logging.interceptor";
-import { LoggingModule } from "src/logging/logging.mdule";
+import { LoggingModule } from "src/logging/logging.module";
 import { OrderModule } from "src/order/order.module";
 
 @Module({

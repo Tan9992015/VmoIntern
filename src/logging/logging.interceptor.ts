@@ -1,7 +1,7 @@
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { LoggingService } from "./logging.service";
-import { lastValueFrom } from "rxjs";
+import { lastValueFrom, of } from "rxjs";
 
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {
@@ -14,23 +14,23 @@ export class LoggingInterceptor implements NestInterceptor {
         const handler = context.getHandler() //get method 
         const isLoggable = this.reflector.get<boolean>('loggable',handler) // 2 tham số là key với nơi gắn metadata
 
-        if(!isLoggable) return await lastValueFrom(next.handle())
+        if(!isLoggable) return await lastValueFrom(of(await next.handle())) // next handle trả về observable (gọi controller tương ứng), lastvalue chuyển obsevable thành promise
 
         const request = context.switchToHttp().getRequest()
         const { method,url,user } = request
-        // console.log('request',request)
-        const userEmail= user?.email ?? 'nothing'
-
+    
+        const userEmail= user?.email ?? 'not exist'
+        const userId = user?.id ?? 'not exist'
         try {
-            const result = await lastValueFrom(next.handle())
+           const result = await lastValueFrom(of(await next.handle()))
            const log = await this.loggingService.logToDB({
                 method:method,
                 url:url,
                 userEmail:userEmail,
+                userId:userId,
                 timeStamp: new Date().toISOString(),
                 status: context.switchToHttp().getResponse().statusCode
             })
-            console.log('result',result)
            return result
         } catch (error) {
             throw new Error(error)

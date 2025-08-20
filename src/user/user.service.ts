@@ -27,7 +27,6 @@ export class UserService {
 
     async register(user:UserDto):Promise<any> {
         try {
-            console.log(user)
             let newUser = new UserEntity()
             newUser.phoneNumber = user.phoneNumber ?? ''
             newUser.email = user.email ?? ''
@@ -129,7 +128,8 @@ export class UserService {
 
         return {
             err:0,
-            mess:'updated success'
+            mess:'updated success',
+            data:await this.userRepository.findOne({where:{id}})
         }
        } catch (error) {
             throw new Error(error)
@@ -137,9 +137,10 @@ export class UserService {
         
     }
 
-    async softDelete(id:string):Promise<any> {
-        return await this.userRepository.softDelete(id)
-    }
+    async softDelete(id: string): Promise<any> {
+    await this.userRepository.softDelete(id)
+    return { err: 0, mess: 'deleted successfully' }
+}
 
     async findOneByEmai(email:string):Promise<any> {
         return await this.userRepository.findOne({where:{email}})

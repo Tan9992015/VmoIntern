@@ -7,6 +7,9 @@ export class LoggingEntity {
     id:string
 
     @Column()
+    userId:string
+
+    @Column()
     method:string
 
     @Column()

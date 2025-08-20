@@ -20,7 +20,7 @@ export class CartService {
 
     async createCart(user:UserAllOptional,cart:CartDto):Promise<any> {
        try {
-         const foundUser = this.userService.findOneByEmai(user.email || '')
+        const foundUser = await this.userService.findOneByEmai(user.email || '')
         if(!foundUser) return {
             err:1,
             mess:'user not found'
@@ -31,9 +31,14 @@ export class CartService {
             err:1,
             mess:"product not found"
         }
+        if (Number(cart.quantity) > Number(cartProduct.stock)) 
+        return {
+        err: 1,
+        mess: `quantity must lower or equal ${cartProduct.stock} in stock.`
+      }
         newCart.user = await foundUser
         newCart.product = cartProduct
-        newCart.quantity = cart.quantity ?? 1
+        newCart.quantity = cart.quantity
         const createCart = await this.cartRepository.save(newCart)
         if(!createCart) return {
             err:1,
@@ -57,7 +62,8 @@ export class CartService {
                                                             product:{
                                                                 id:true,
                                                                 name:true,
-                                                                price:true
+                                                                price:true,
+                                                                stock:true
                                                             },
                                                             user: {
                                                                 id:true,
@@ -68,9 +74,9 @@ export class CartService {
                                                             }
                                                            }
                                                         })
-        if(!foundCart) return {
+        if(!foundCart || foundCart.length === 0) return {
             err:1,
-            mess:"cart not found",
+            mess:"cart not found or not exist",
             cart:[],
             totalItems:0,
             totalValue:0
@@ -163,7 +169,7 @@ export class CartService {
     async deleteUserCart(userId:string):Promise<any> {
      
         try {
-               const foundCart = await this.cartRepository.find({
+            const foundCart = await this.cartRepository.find({
             where: {user: {id : userId}},
             relations:['product']
         })

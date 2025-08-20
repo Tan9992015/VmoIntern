@@ -11,13 +11,13 @@ export class ShipmentService {
                 private readonly shipmentRepository:Repository<ShipmentEntity>,
                 private readonly userService: UserService
 ) {}
-async createShipment(shipmentDto: ShipmentDto): Promise<any> {
+async createShipment(shipmentDto: ShipmentDto,userId:string): Promise<any> {
    try {
      const newShipment = new ShipmentEntity()
      newShipment.address = shipmentDto.address
      newShipment.shipmentMethod = shipmentDto.shipmentMethod
      newShipment.shipmentStatus = shipmentDto.shipmentStatus
-     const foundUser = await this.userService.findOneById(shipmentDto.userId)
+     const foundUser = await this.userService.findOneById(userId)
      if(!foundUser) return {
         err:1,
         mess:'user not found'
@@ -35,19 +35,41 @@ async createShipment(shipmentDto: ShipmentDto): Promise<any> {
    }
 }
 
-async getAllShipment():Promise<ShipmentEntity[]>{
-    return await this.shipmentRepository.find()
+async getAllShipment():Promise<any>{
+   try {
+         return await this.shipmentRepository.find()
+   } catch (error) {
+    throw new Error(error)
+   }
 }
 
 async getShipmentById(id:string):Promise<any> {
-    return await this.shipmentRepository.findOne({where:{id}})
+    try {
+        const foundShipment = await this.shipmentRepository.findOne({where:{id}})
+        if(!foundShipment) return {
+            err:1,
+            mess:'shipment id not found'
+        }
+        return {
+            err:0,
+            mess:'found shipment success',
+            shipment:  foundShipment
+        }
+    } catch (error) {
+        throw new Error(error)
+    }
 }
 
 async getShipmentByUserId(userId:string):Promise<any> {
-    return await this.shipmentRepository.find({where:{user:{id:userId}}})
+   try {
+     return await this.shipmentRepository.find({where:{user:{id:userId}}})
+   } catch (error) {
+    throw new Error(error)
+   }
 }
 
 async updateShipment(userId:string,shipmentId:string,shimpent:ShipmentAllOptional):Promise<any> {
+  try {
     const foudShipments= await this.shipmentRepository.find({where:{ user:{ id:userId } } })
     let check:boolean= false
      for(const shimpent of foudShipments){
@@ -65,10 +87,14 @@ async updateShipment(userId:string,shipmentId:string,shimpent:ShipmentAllOptiona
         err:0,
         mess:'update success'
      }
+  } catch (error) {
+    throw new Error(error)
+  }
 }
 
 async deleteShipmentByUserIdAndId(userId:string,shipmentId:string):Promise<any> {
-    const foudShipments= await this.shipmentRepository.find({where:{ user:{ id:userId } } })
+        try {
+              const foudShipments= await this.shipmentRepository.find({where:{ user:{ id:userId } } })
         let check:boolean = false
         for(const shimpent of foudShipments){
             if(shipmentId===shimpent.id){
@@ -84,6 +110,9 @@ async deleteShipmentByUserIdAndId(userId:string,shipmentId:string):Promise<any> 
         return {
             err:0,
             mess:'delete success'
+        }
+        } catch (error) {
+         throw new Error(error)   
         }
     }
 }

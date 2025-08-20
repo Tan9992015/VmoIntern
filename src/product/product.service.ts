@@ -29,14 +29,15 @@ export class ProductService {
                 }
                 newProduct.category = category
                 // save product to db
-                const savedUser = await this.productRepository.save(newProduct)
-                if(!savedUser) return {
+                const savedProduct = await this.productRepository.save(newProduct)
+                if(!savedProduct) return {
                     error:1,
-                    mess:'can not save prodct'
+                    mess:'can not create product'
                 }
                 return {
-                    erro:0,
+                    error:0,
                     mess:'create product success',
+                    product:await savedProduct
                 }
             } catch (error) {
                 throw new Error(error)
@@ -57,7 +58,8 @@ export class ProductService {
                 }
                 return {
                     err:0,
-                    mess:'product updated success'
+                    mess:'product updated success',
+                    product: await this.productRepository.findOne({where:{id}})
                 }
             } catch (error) {
                 throw new Error(error)
@@ -65,8 +67,12 @@ export class ProductService {
         }
 
 
-        async findAllProduct():Promise<ProductEntity[]> {
-            return await this.productRepository.find()
+        async findAllProduct():Promise<any> {
+           try {
+                return await this.productRepository.find({relations:['category']})
+           } catch (error) {
+                throw new Error(error)
+           }
         }
 
         async findOneById(id:string):Promise<any> {
@@ -83,7 +89,20 @@ export class ProductService {
         }
 
         async deleteProduct(id:string):Promise<any> {
-            return await this.productRepository.softDelete(id)
+           try {
+             const foundProduct = await this.productRepository.findOne({where:{id}})
+             if(!foundProduct) return {
+                error:1,
+                mess:'product not found'
+             }
+             await this.productRepository.softDelete(id)
+             return {
+                error:0,
+                mess:'delete product success'
+             }
+           } catch (error) {
+            throw new Error(error)
+           }
         }
     
     // paginate

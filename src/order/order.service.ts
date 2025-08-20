@@ -1,6 +1,6 @@
 import { InjectRepository } from "@nestjs/typeorm";
 import { OrderEntity } from "./order.entity";
-import { Repository } from "typeorm";
+import { Repository,DataSource } from "typeorm";
 import { CartService } from "src/cart/cart.service";
 import { UserService } from "src/user/user.service";
 import { ShipmentEntity } from "src/shipment/shipment.entity";
@@ -19,16 +19,30 @@ export class OrderService {
                 private readonly userService:UserService,
                 private readonly productService:ProductService,
                 private readonly shipmentService:ShipmentService,
-                private readonly paymentService:PaymentService
+                private readonly paymentService:PaymentService,
+                private readonly dataSource:DataSource
 ) { }
 
     async createOrderFromCart(userId:string,shipmentId:string,paymentId:string):Promise<any> {
+
+        const querryRunner= this.dataSource.createQueryRunner()
+        await querryRunner.connect()
+        await querryRunner.startTransaction()
         try {
             const foundCartByUserId = await this.cartService.getCartByUserId(userId)
-            console.log(foundCartByUserId)
-            if(!foundCartByUserId) return {
+            if(foundCartByUserId.err===1) return {
                 err:1,
                 mess:"cart not found"
+            }
+            const foundShipment = await this.shipmentService.getShipmentById(shipmentId)
+            if(foundShipment.err===1) return {
+                err:1,
+                mess:'shipment not found'
+            }
+            const foundPayment = await this.paymentService.findOnePaymentById(paymentId)
+            if(foundPayment.err===1) return {
+                err:1,
+                mess:'payment not found'
             }
             let sum =0 
             foundCartByUserId.cart.forEach((cart)=> {
@@ -39,23 +53,34 @@ export class OrderService {
             const newOrder = new OrderEntity()
             newOrder.user = await this.userService.findOneById(userId)
             newOrder.totalPrice = sum
-            newOrder.shipment = await this.shipmentService.getShipmentById(shipmentId)
-            newOrder.payment = await this.paymentService.findOnePaymentById(paymentId)
+            newOrder.shipment = foundShipment.shipment
+            newOrder.payment = foundPayment.payment
             // create order products
             const orderProducts: OrderProductEntity[] = []
             for (const cartItem of foundCartByUserId.cart) {
+                if (cartItem.quantity > cartItem.product.stock) {
+                await querryRunner.rollbackTransaction()
+                return {
+                    err: 1,
+                    mess: `quantity must equal or lower ${cartItem.product.stock}`
+                }
+            }
                 const op = new OrderProductEntity()
                 op.product = cartItem.product
-                console.log(cartItem.product)
-                console.log('cart item quantity',cartItem.quantity)
                 op.quantity = cartItem.quantity
                 op.price = cartItem.product.price
                 op.order = newOrder
                 orderProducts.push(op)
             }
 
-            const savedOrder = await this.orderRepository.save(newOrder)
-            await this.orderProductRepository.save(orderProducts)
+            // cập nhật lại stock sản phẩm trong db
+            for (const op of orderProducts) {
+                op.product.stock = Number(op.product.stock) - Number(op.quantity)
+                await querryRunner.manager.save(op.product)
+            }
+            const savedOrder = await querryRunner.manager.save(newOrder)
+            await querryRunner.manager.save(orderProducts)
+            await querryRunner.commitTransaction() // commit to insert all to db
 
             return {
                 err:0,
@@ -63,11 +88,19 @@ export class OrderService {
                 order: savedOrder
             }
         } catch (error) {
+            await querryRunner.rollbackTransaction()
             throw new Error(error)
+        } finally {
+            await querryRunner.release()
         }
     }
 
     async createOrderDirect(userId:string,orderDto:OrderDirectDto): Promise<any> {
+     
+     const querryRunner = this.dataSource.createQueryRunner()
+     await querryRunner.connect()
+     await querryRunner.startTransaction()
+     try {
         const user = await this.userService.findOneById(userId)
         if (!user) return { err: 1, mess: 'user not found' }
 
@@ -75,64 +108,99 @@ export class OrderService {
         newOrder.user = user
 
         const foundShipment = await this.shipmentService.getShipmentById(orderDto.shipmentId)
-        if(!foundShipment) return {
+        if(foundShipment.err===1) return {
             err:1,
             mess:'shipment not found'
         }
         const foundPayment = await this.paymentService.findOnePaymentById(orderDto.paymentId)
-        if(!foundPayment) return {
+        if(foundPayment.err===1) return {
             err:1,
             mess:'payment not found'
         }
-        newOrder.shipment = await foundShipment
+        newOrder.shipment = foundShipment.shimpent
+        newOrder.payment = foundPayment.payment
         const orderProducts: OrderProductEntity[] = []
         let total = 0
         for (const item of orderDto.items) {
             const op = new OrderProductEntity()
-            const foundProduct = await this.productService.findOneById(item.productId)
-            // console.log('1',foundProduct)
-            // console.log('2',item.quantity)
-            // console.log('3',foundProduct.product.price)
-            op.product = foundProduct.product
+            const foundProductRes = await this.productService.findOneById(item.productId)
+            if (foundProductRes.err === 1) {
+                await querryRunner.rollbackTransaction()
+                return { err: 1, mess: `product ${item.productId} not found` }
+            }
+            const foundProduct = foundProductRes.product
+            if (item.quantity > foundProduct.product.stock) {
+                await querryRunner.rollbackTransaction()
+                return { 
+                     err: 1, 
+                     mess: `quantity must equal or lower ${foundProduct.stock}` 
+                }
+            }
+            op.product = foundProduct
             op.quantity = item.quantity
-            op.price =  foundProduct.product.price 
+            op.price =  foundProduct.price 
             op.order = newOrder
             orderProducts.push(op)
-            total+=Number(item.quantity)*Number(foundProduct.product.price)
+            total+=Number(item.quantity)*Number(foundProduct.price)
+        }
+
+        // chỉnh sửa stock sản phẩm
+        for(const op of orderProducts) {
+            op.product.stock = Number(op.product.stock) - Number(op.quantity)
+            await querryRunner.manager.save(op.product)
         }
         newOrder.totalPrice = total
 
-        const savedOrder = await this.orderRepository.save(newOrder)
-        await this.orderProductRepository.save(orderProducts)
+        const savedOrder = await querryRunner.manager.save(newOrder)
+        await querryRunner.manager.save(orderProducts)
+        await querryRunner.commitTransaction()
 
-        return { err: 0, mess: 'create order success', orderId: savedOrder }
+        return { err: 0, mess: 'create order success', order:savedOrder }
+     } catch (error) {
+        await querryRunner.rollbackTransaction()
+        throw new Error(error)
+     } finally {
+        await querryRunner.release()
+     }
     }
 
     async getAll():Promise<any> {
-        return await this.orderRepository.find()
+        try {
+            return await this.orderRepository.find()
+        } catch (error) {
+            throw new Error(error)
+        }
     }
 
     async getOrderByUserId(userId:string):Promise<any> {
-        return await this.orderRepository.findOne({where:{user:{id:userId}}})
+        try {
+            return await this.orderRepository.findOne({where:{user:{id:userId}}})
+        } catch (error) {
+            throw new Error(error)
+        }
     }
 
     async deleteOrder(userId:string,orderId:string):Promise<any> {
-        const foudOrders= await this.orderRepository.find({where:{ user:{ id:userId } } })
-        let check:boolean = false
-        for(const order of foudOrders){
-            if(orderId===order.id){
+        try {
+            const foudOrders= await this.orderRepository.find({where:{ user:{ id:userId } } })
+            let check:boolean = false
+            for(const order of foudOrders){
+                if(orderId===order.id){
                 check = true
                 break
             }
-        }
-        if(check===false) return {
-            err:1,
-            mess:'order not belong to user to delete'
-        }
-        await this.orderRepository.softDelete(orderId)
-        return {
-            err:0,
-            mess:'delete success'
+            }
+            if(check===false) return {
+                err:1,
+                mess:'order not belong to user to delete'
+            }
+            await this.orderRepository.softDelete(orderId)
+            return {
+                err:0,
+                mess:'delete success'
+            }
+        } catch (error) {
+            throw new Error(error)
         }
     }
 }

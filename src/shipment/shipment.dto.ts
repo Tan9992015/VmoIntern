@@ -23,11 +23,6 @@ export class ShipmentDto {
     @IsEnum(ShipmmentStatus)
     shipmentStatus:ShipmmentStatus
 
-    @ApiProperty()
-    @IsNotEmpty()
-    @IsString()
-    userId:string
-
 }
 
 export class ShipmentAllOptional extends PartialType(ShipmentDto) {}

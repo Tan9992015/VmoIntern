@@ -14,10 +14,6 @@ export class OrderItemDto {
     @IsNumber()
     quantity: number
 
-    @ApiProperty()
-    @IsNotEmpty()
-    @IsNumber()
-    price: number
 }
 
 export class OrderDirectDto {
